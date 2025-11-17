@@ -13,6 +13,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
 # -------------------------------- Load images --------------------------------#
+
         self.player_moving = pygame.image.load(
             "data/images/characters/char_right.png").convert()
         self.player_moving = pygame.transform.scale(
@@ -29,7 +30,7 @@ class Game:
         self.win_screen = pygame.transform.scale(self.win_screen, (640, 640))
 
         self.partille_l1_1 = pygame.image.load(
-            "data/images/background/partille_1.png").convert()
+            "data/images/background/partille_l1_1.png").convert()
         self.partille_l1_1 = pygame.transform.scale(
             self.partille_l1_1, (660, 318))
         self.partille_l1_1.set_colorkey((0, 0, 0))
@@ -45,19 +46,33 @@ class Game:
             "Tryck E för att säga hej", True, (255, 255, 255))
         self.tutorial = pygame.transform.scale(self.tutorial, (170, 45))
 
+        self.partille_l2_1 = pygame.image.load(
+            "data/images/background/partille_l2_1.png").convert()
+        self.partille_l2_1 = pygame.transform.scale(
+            self.partille_l2_1, (297, 90))
+        self.partille_l2_1.set_colorkey((0, 0, 0))
+
+        self.sidewalk = pygame.image.load(
+            "data/images/tiles/sidewalk.jpg").convert()
+        self.sidewalk = pygame.transform.scale(self.sidewalk, (400, 64))
+        self.sidewalk.set_colorkey((0, 0, 0))
+
 # ------------------------------- Defenitions and cords ----------------------------------------#
 
         self.layer1_pos = [0, 150]
         self.layer1_movement = [False, False]
 
+        self.layer2_x = (self.layer1_pos[0] + 600) * 0.5
+        self.layer2_pos = [self.layer2_x, 300]
+
         self.sad1_collision = None
 
-        # Define states
         self.interact = False
         self.running = True
-        self.win = False
 
         self.time_passed_since_win = 0
+
+        self.invisible_wall_left = None
 
 # ---------------------------------------------------------------------------------------------#
 
@@ -69,34 +84,53 @@ class Game:
 
 # ------------------------------- Draw layers --------------------------------#
 
-            self.screen.blit(self.partille_l1_1, self.layer1_pos)
+            self.layer1_pos[0] += (self.layer1_movement[1] -
+                                   self.layer1_movement[0]) * 5
+            self.layer2_x = (self.layer1_pos[0] + 500) * 0.8
+            self.layer2_pos = [self.layer2_x, 300]
 
+            self.screen.blit(
+                self.sidewalk, (self.layer1_pos[0] - 10, self.layer1_pos[1] + 294))
+            self.screen.blit(
+                self.sidewalk, (self.layer1_pos[0] + 390, self.layer1_pos[1] + 294))
+            self.screen.blit(
+                self.sidewalk, (self.layer1_pos[0] + 790, self.layer1_pos[1] + 294))
+            self.screen.blit(
+                self.sidewalk, (self.layer1_pos[0] + 1190, self.layer1_pos[1] + 294))
+            self.screen.blit(self.partille_l2_1, self.layer2_pos)
+            self.screen.blit(self.partille_l1_1, self.layer1_pos)
 
 # ------------------------------- Hitboxes --------------------------------#
 
             player_hitbox = pygame.Rect(
-                320, 380, self.player_img.get_width(
-                ),
+                320, 340, self.player_img.get_width(),
                 self.player_img.get_height())
 
             self.sad1_collision = pygame.Rect(
-                self.layer1_pos[0] + 50, self.layer1_pos[1] + 250, 80, 130)
+                self.layer1_pos[0] + 320, self.layer1_pos[1] + 210, self.sad1.get_width(), self.sad1.get_height())
+
+            self.invisible_wall_left = pygame.Rect(
+                self.layer1_pos[0] + 280, 150, 50, 320)
+
             # Show hitboxes for testing
             pygame.draw.rect(self.screen, (255, 0, 0), player_hitbox, 2)
             pygame.draw.rect(self.screen, (0, 255, 0), self.sad1_collision, 2)
+            pygame.draw.rect(
+                self.screen, (0, 0, 255), self.invisible_wall_left, 2)
 
-# ------------------------------- Player movement and interactions --------------------------------#
+# ------------------------------- Sad character 1 --------------------------------#
 
             if player_hitbox.colliderect(self.sad1_collision) and self.interact is True:
-                self.win = True
+                self.sad1_happiness = True
             elif player_hitbox.colliderect(self.sad1_collision) is True:
-                self.screen.blit(self.tutorial, (0, 270))
+                self.screen.blit(self.tutorial, (self.layer1_pos[0] + 270,
+                                 self.layer1_pos[1] + 190))
                 self.screen.blit(self.sad1, self.sad1_collision)
             else:
                 self.screen.blit(self.sad1, self.sad1_collision)
 
-            self.layer1_pos[0] += (self.layer1_movement[1] -
-                                   self.layer1_movement[0]) * 5
+# ------------------------------- Player movement and interactions --------------------------------#
+
             if not any(self.layer1_movement):
                 self.screen.blit(
                     self.player_img, player_hitbox.topleft)
@@ -108,6 +142,8 @@ class Game:
                         self.player_moving, True, False)
                     self.screen.blit(flipped_player_moving,
                                      (player_hitbox.topleft))
+            if player_hitbox.colliderect(self.invisible_wall_left):
+                self.layer1_pos[0] -= 5
 
 # ------------------------------- Inputs handling --------------------------------#
 
@@ -116,21 +152,23 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.layer1_movement[0] = True
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a:
                         self.layer1_movement[1] = True
                     if event.key == pygame.K_e:
                         self.interact = True
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.layer1_movement[0] = False
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a:
                         self.layer1_movement[1] = False
+                    if event.key == pygame.K_e:
+                        self.interact = False
 
-# ------------------------------- Win condition --------------------------------#
+# ------------------ Win condition (remember to add all other charachers happiness) ------------------#
 
-            if self.win is True:
+            if self.sad1_happiness is True:
                 self.screen.blit(self.win_screen, (0, 0))
                 self.layer1_movement = [False, False]
                 self.time_passed_since_win += self.clock.get_time()
