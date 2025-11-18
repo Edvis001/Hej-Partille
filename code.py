@@ -107,16 +107,17 @@ class Game:
                 self.player_img.get_height())
 
             self.sad1_collision = pygame.Rect(
-                self.layer1_pos[0] + 320, self.layer1_pos[1] + 210, self.sad1.get_width(), self.sad1.get_height())
+                self.layer1_pos[0] + 320, self.layer1_pos[1] +
+                210, self.sad1.get_width(),
+                self.sad1.get_height())
 
-            self.invisible_wall_left = pygame.Rect(
-                self.layer1_pos[0] + 280, 150, 50, 320)
+            self.invisible_wall_left = pygame.Rect(aaaa
+                                                   self.layer1_pos[0] + 280, 150, 50, 320)
 
             # Show hitboxes for testing
-            pygame.draw.rect(self.screen, (255, 0, 0), player_hitbox, 2)
-            pygame.draw.rect(self.screen, (0, 255, 0), self.sad1_collision, 2)
-            pygame.draw.rect(
-                self.screen, (0, 0, 255), self.invisible_wall_left, 2)
+            # pygame.draw.rect(self.screen, (255, 0, 0), player_hitbox, 2)
+            # pygame.draw.rect(self.screen, (0, 255, 0), self.sad1_collision, 2)
+            # pygame.draw.rect(self.screen, (0, 0, 255), self.invisible_wall_left, 2)
 
 # ------------------------------- Sad character 1 --------------------------------#
 
